@@ -1,0 +1,39 @@
+services:
+  simpleflow_db:
+    image: mongo:latest
+    container_name: simpleflow_db
+    ports:
+      - "9510:27017"
+    restart: always
+    environment:
+      - MONGO_INITDB_DATABASE=simpleflow
+      - MONGO_INITDB_ROOT_USERNAME=root
+      - MONGO_INITDB_ROOT_PASSWORD=rootpassword
+    volumes:
+      - simpleflow_db_data:/data/db
+      - ./init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
+
+  simpleflow_storage:
+    image: minio/minio
+    container_name: simpleflow_storage
+    ports:
+      - "9520:9000"
+      - "9521:9001"
+    restart: always
+    volumes:
+      - simpleflow_storage_data:/data
+    environment:
+      - MINIO_ROOT_USER=root
+      - MINIO_ROOT_PASSWORD=rootpassword
+    command: server /data --console-address ":9001"
+
+  simpleflow_redis:
+    image: redis:latest
+    container_name: simpleflow_redis
+    ports:
+      - "9530:6379"
+    restart: always
+
+volumes:
+  simpleflow_db_data:
+  simpleflow_storage_data:
